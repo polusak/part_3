@@ -1,0 +1,7 @@
+POST https://puhelinluettelon-backend-yxlg.onrender.com/api/persons
+Content-Type: application/json
+
+{
+    "name": "Silvia",
+    "number": "23423432"
+}
