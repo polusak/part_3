@@ -15,6 +15,16 @@ app.use(morgan(
     ':method :url :status :res[content-length] - :response-time ms :response-body'
 ));
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(people => {
     response.json(people)
@@ -29,29 +39,25 @@ app.get('/api/info', (request, response) => {
   })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const person = persons.find(p => p.id === id)
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+  .then(person => {
     if (person) {
-        response.json(person)
-      } else {
-        response.status(404).end()
-      }
+      response.json(person)
+    } else {
+      response.status(404).end()
+    }
+  })
+  .catch(error => next(error))
   })
 
-app.delete('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const person = persons.find(p => p.id === id)
-    persons = persons.filter(p => p.id !== id)
-    response.json(person)
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+  .then(result => {
+    response.json(result)
+  })
+  .catch(error => next(error))
 })
-
-const generateId = () => {
-    const maxId = persons.length > 0
-      ? Math.max(...persons.map(n => Number(n.id)))
-      : 0
-    return String(maxId + 1)
-}
 
 app.post('/api/persons', (request, response) => {
     const body = request.body
@@ -59,13 +65,12 @@ app.post('/api/persons', (request, response) => {
       return response.status(400).json({ 
           error: 'Name missing' 
       })
-  }
-
-  if (body.number === `` || body.number === undefined) {
+    }
+    if (body.number === `` || body.number === undefined) {
       return response.status(400).json({ 
         error: 'Number missing' 
       })
-  }
+    }
 
     const person = new Person({
       name: body.name,
@@ -76,7 +81,33 @@ app.post('/api/persons', (request, response) => {
     person.save().then(savedPerson => {
       response.json(savedPerson)
     })
-  })
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const { name, number } = request.body
+
+  Person.findById(request.params.id)
+    .then((person) => {
+      if (!person) {
+        return response.status(404).end()
+      }
+
+      person.name = name
+      person.number = number
+
+      return person.save().then((updatedPerson) => {
+        response.json(updatedPerson)
+      })
+    })
+    .catch((error) => next(error))
+})
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
