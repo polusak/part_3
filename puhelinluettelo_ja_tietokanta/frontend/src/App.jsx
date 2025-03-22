@@ -79,25 +79,32 @@ const App = () => {
       personService
         .create(personObject)
         .then(returnedPersons => {
-          setError(false)
-          setMessage(
-            `'${personObject.name}' was successfully added to the server`
-          )
-          setTimeout(() => {
-            setMessage(null)
-          }, 5000)
-          const newList = persons.concat(returnedPersons)
-          setPersons(newList)
-          const upperCaseFilter = nameFilter.toUpperCase()
-          const filteredPersonList = newList.filter(
-            p => p.name.toUpperCase().includes(upperCaseFilter)
-          )
-          setFilteredPersons(filteredPersonList)
-          setNewName('')
-          setNewNumber('')
-        }
-      )
-
+          if (returnedPersons.error) {
+            setMessage(
+              returnedPersons.message
+            )
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
+          } else {
+            setError(false)
+            setMessage(
+              `'${personObject.name}' was successfully added to the server`
+            )
+            setTimeout(() => {
+              setMessage(null)
+            }, 5000)
+            const newList = persons.concat(returnedPersons.message)
+            setPersons(newList)
+            const upperCaseFilter = nameFilter.toUpperCase()
+            const filteredPersonList = newList.filter(
+              p => p.name.toUpperCase().includes(upperCaseFilter)
+            )
+            setFilteredPersons(filteredPersonList)
+            setNewName('')
+            setNewNumber('')
+          }
+        })
     }
   }
 

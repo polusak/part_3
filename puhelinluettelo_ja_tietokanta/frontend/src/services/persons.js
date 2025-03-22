@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = '/api/persons'
+const baseUrl = 'http://localhost:3001/api/persons'
 
 const getAll = () => {
   const request = axios.get(baseUrl)
@@ -8,10 +8,14 @@ const getAll = () => {
   })
 }
 
+
 const create = personObject => {
   const request = axios.post(baseUrl, personObject)
   return request.then(response => {
-    return response.data
+    return {error: false, message: response.data}
+  }).catch(error => {
+    const err = error.response.data.error
+    return {error: true, message: err}
   })
 }
 
