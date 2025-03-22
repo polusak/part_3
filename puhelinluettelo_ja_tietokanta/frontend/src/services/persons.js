@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = 'https://puhelinluettelon-backend-yxlg.onrender.com/api/persons'
+const baseUrl = '/api/persons'
 
 const getAll = () => {
   const request = axios.get(baseUrl)
@@ -23,7 +23,7 @@ const remove = (id) => {
 }
 
 const modify = (id, newInfo) => {
-  const url = `http://localhost:3001/persons/${id}`
+  const url = `${baseUrl}/${id}`
   const request = axios.put(url, newInfo)
     return request.then(response => {
       return response.data

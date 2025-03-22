@@ -22,9 +22,11 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/api/info', (request, response) => {
-    const amount = `Phonebook has info for ${persons.length} people`
+  Person.find({}).then(people => {
+    const amount = `Phonebook has info for ${people.length} people`
     const time = Date()
     response.send(`${amount}<br/>${time}`)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -53,34 +55,27 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response) => {
     const body = request.body
-    const a = persons.filter(p => body.name === p.name)
-    if (a.length > 0) {
-        return response.status(400).json({ 
-            error: 'Name must be unique' 
-        })
-    }
-  
     if (body.name === `` || body.name === undefined) {
-        return response.status(400).json({ 
-            error: 'Name missing' 
-        })
-    }
+      return response.status(400).json({ 
+          error: 'Name missing' 
+      })
+  }
 
-    if (body.number === `` || body.number === undefined) {
-        return response.status(400).json({ 
-          error: 'Number missing' 
-        })
-    }
-  
-    const person = {
+  if (body.number === `` || body.number === undefined) {
+      return response.status(400).json({ 
+        error: 'Number missing' 
+      })
+  }
+
+    const person = new Person({
       name: body.name,
-      number: body.number || false,
-      id: generateId(),
-    }
-  
-    persons = persons.concat(person)
-  
-    response.json(person)
+      number: body.number,
+      id: body.id
+    })
+
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
   })
 
 const PORT = process.env.PORT
