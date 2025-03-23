@@ -80,6 +80,7 @@ const App = () => {
         .create(personObject)
         .then(returnedPersons => {
           if (returnedPersons.error) {
+            setError(true)
             setMessage(
               returnedPersons.message
             )
