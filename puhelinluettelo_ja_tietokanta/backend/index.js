@@ -10,12 +10,12 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('dist'))
 morgan.token(
-    'response-body', 
-    (req, res) => {return JSON.stringify(req.body)}
+  'response-body',
+  (req) => {return JSON.stringify(req.body)}
 )
 app.use(morgan(
-    ':method :url :status :res[content-length] - :response-time ms :response-body'
-));
+  ':method :url :status :res[content-length] - :response-time ms :response-body'
+))
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
@@ -45,44 +45,44 @@ app.get('/api/info', (request, response) => {
 
 app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
-  .then(person => {
-    if (person) {
-      response.json(person)
-    } else {
-      response.status(404).end()
-    }
-  })
-  .catch(error => next(error))
-  })
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
+})
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-  .then(result => {
-    response.json(result)
-  })
-  .catch(error => next(error))
+    .then(result => {
+      response.json(result)
+    })
+    .catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response, next) => {
-    const body = request.body
-    if (body.name === `` || body.name === undefined) {
-      return response.status(400).json({ 
-          error: 'Name missing' 
-      })
-    }
-    if (body.number === `` || body.number === undefined) {
-      return response.status(400).json({ 
-        error: 'Number missing' 
-      })
-    }
-
-    const person = new Person({
-      name: body.name,
-      number: body.number,
-      id: body.id
+  const body = request.body
+  if (body.name === '' || body.name === undefined) {
+    return response.status(400).json({
+      error: 'Name missing'
     })
+  }
+  if (body.number === '' || body.number === undefined) {
+    return response.status(400).json({
+      error: 'Number missing'
+    })
+  }
 
-    person.save()
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+    id: body.id
+  })
+
+  person.save()
     .then(savedPerson => {
       response.json(savedPerson)
     })
