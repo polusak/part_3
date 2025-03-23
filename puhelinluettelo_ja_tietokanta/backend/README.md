@@ -1,1 +1,1 @@
-https://puhelinluettelon-backend-yxlg.onrender.com/api/persons
+https://puhelinluettelo-ja-tietokanta-backend.onrender.com/api/persons
