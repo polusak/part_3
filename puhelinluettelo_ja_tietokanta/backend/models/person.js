@@ -12,15 +12,31 @@ mongoose.connect(url)
     console.log('error connecting to MongoDB:', error.message)
   })
 
+const validator = (number) => {
+  const numberArray  = number.split("")
+  if (numberArray[2] === "-") {
+    return /\d{2}-\d{6,}/.test(number)
+  } else if (numberArray[3] === "-") {
+    return /\d{3}-\d{5,}/.test(number)
+  }
+  return false
+}
+
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
     minlength: 3,
     required: true,
   },
-  number: String,
-  id: String
-})
+  number: {
+    type: String,
+    validate: {
+      validator: validator,
+      message: 'not a correct form. Try xx/xxx-xxx...'
+    }
+    },
+  },
+)
 
 personSchema.set('toJSON', {
     transform: (document, returnedObject) => {
